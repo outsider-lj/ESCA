@@ -1,6 +1,6 @@
 # ESCA
 
-Title-ESCA: An Emotional Support Conversation Agent for Enhancing Reasonable Strategy Planning and Effective Expression
+ESCA: An Emotional Support Conversation Agent for Enhancing Reasonable Strategy Planning and Effective Expression
 
 There is the initial version of our code, we will further standardize our code and update it.
 
