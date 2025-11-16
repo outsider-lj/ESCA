@@ -32,4 +32,5 @@ python run.py --pgrl True
 # test
 
 python infer_gen.py #for evaluate the generation performance
+
 python run.py --pgrl False #for evaluate the staretgy planning
