@@ -277,7 +277,7 @@ def train(args, train_dataset, dialogue_planner,prompt_generator, tokenizer,gene
                 query_att1=torch.ones(bsz,32).to(args.device).ne(EOS_TOKEN_ID)
                 query_att2= torch.ones(bsz,8).to(args.device).ne(EOS_TOKEN_ID)
                 response_mask=response_ids.ne(EOS_TOKEN_ID)
-                final_attention_mask=torch.cat([query_att1,gen_attention_mask,query_att2,response_mask],dim=1)
+                final_attention_mask=torch.cat([query_att1,query_att2,gen_attention_mask,response_mask],dim=1)
                 # with torch.no_grad():
                 response_embeddings=generation_model.model.embed_tokens(response_ids)
                 final_embeddings=torch.cat([embeddings,response_embeddings],dim=1)
