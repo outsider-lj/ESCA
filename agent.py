@@ -114,13 +114,16 @@ class MDDP(nn.Module):
             state_embed = torch.stack([emo_state, trust_state, stage_state, behavior_state], dim=1)  # trust_state,
             state_features= self.mlp(state_embed)
             state_features = self.dropout(state_features)
-            context_output = self.proj1(cls_output)
-            features = self.proj2(state_features)
-            attn_scores = torch.bmm(context_output.unsqueeze(1), features.transpose(-1, -2)) / math.sqrt(
-                features.size(-1))
-            attn_weights = self.softmax(attn_scores)
-            state_features = torch.bmm(attn_weights,
-                                       self.proj3(state_features)).squeeze(1) # .unsqueeze(1).transpose(1,2) # (batch_size, num_dimensions, hidden_size)
+            s_attn_scores = torch.matmul(self.proj1(cls_output).unsqueeze(1),
+                                         self.proj2(state_features).transpose(1, 2))  # (B, Lc, Lctx)
+            s_attn_weights = torch.softmax(s_attn_scores, dim=-1)  # (B, Lc, Lctx)
+            state_features = torch.matmul(s_attn_weights, self.proj3(state_features))  # (B, Lc, d)
+
+            # attn_scores = torch.bmm(context_output.unsqueeze(1), features.transpose(-1, -2)) / math.sqrt(
+            #     features.size(-1))
+            # attn_weights = self.softmax(attn_scores)
+            # state_features = torch.bmm(attn_weights,
+            #                            self.proj3(state_features)).squeeze(1) # .unsqueeze(1).transpose(1,2) # (batch_size, num_dimensions, hidden_size)
             combined_output = torch.cat([state_features, cls_output], dim=-1)
             strategy_feature = self.convert_liner(combined_output)
             logits = self.classifier(strategy_feature)
