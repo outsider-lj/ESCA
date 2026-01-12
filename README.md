@@ -29,7 +29,7 @@ python sft_new.py --train_process ["sft_pg"] --num_train_epochs 10
 
 python run.py --pgrl True
 
-# test
+# Test
 
 python infer_gen.py #for evaluate the generation performance
 python run.py --pgrl False #for evaluate the staretgy planning
