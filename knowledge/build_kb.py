@@ -59,9 +59,9 @@ def build_sql_database(knowledge_name,data, db_path):
                     "INSERT INTO knowledge (faiss_index, context,knowledge) VALUES (?, ?, ?)",
                     (idx, row['thought'], clean_text(row['reframe']))
                 )
-                print(f"插入第{idx}数据：{row['thought']}")
+                print(f"Insert{idx}data：{row['thought']}")
             except Exception as e:
-                print(f"插入失败: {e}")
+                print(f"Insert failed: {e}")
     elif "emotion" in knowledge_name:
         for idx, row in data.iterrows():
             try:
@@ -69,9 +69,9 @@ def build_sql_database(knowledge_name,data, db_path):
                     "INSERT INTO knowledge (faiss_index,context,knowledge) VALUES (?, ?, ?)",
                     (idx, row['seeker_post'], clean_text(row['response_post']))
                 )
-                print(f"插入第{idx}数据：{row['seeker_post']}")
+                print(f"Insert{idx}data：{row['seeker_post']}")
             except Exception as e:
-                print(f"插入失败: {e}")
+                print(f"Insert failed: {e}")
     elif "psy" in knowledge_name:
         for idx, row in data.iterrows():
             try:
@@ -94,7 +94,6 @@ def check_columns(db_path):
 
     conn.close()
 
-    print("数据库表字段:", columns)
     return "faiss_index" in columns
 
 if __name__ == "__main__":
@@ -113,11 +112,3 @@ if __name__ == "__main__":
     build_sql_database(args.knowledge_name,data, db_path=args.vector_path)
     #build FAISS index
     faiss_index = build_faiss_index(encoder,args.knowledge_name,data, index_path=args.index_path)
-
-    if check_columns(args.vector_path):
-        print(" `faiss_index` 字段存在！")
-    else:
-        print("`faiss_index` 字段缺失！")
-# daic_woz_data = load_daic_woz_data()
-# faiss_index, faiss_texts = build_faiss_index(cognitive_data)
-# build_sql_database(cognitive_data, "knowledge.db")
