@@ -8,7 +8,7 @@ import time
 import openai
 
 behaviors = ["greeting", "question", "statement-fact", "statement-opinion", "statement-emotion",
-             "command", "feedback, "acknowledgement",  "others"]
+             "command", "feedback", "acknowledgement",  "others"]
 stages = ["precontemplation", "contemplation", "preparation", "action", "maintenance"]
 def split_json_file(json_file, num_parts=20):
     with open(json_file, "r", encoding="utf-8") as f:

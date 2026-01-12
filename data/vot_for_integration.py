@@ -247,9 +247,4 @@ if __name__ == "__main__":
         json.dump(updated_dataset, f, ensure_ascii=False, indent=4)
     with open("./annotated_data/reliablity_need_fourth_annotation_stage.json", "w", encoding="utf-8") as f:
         json.dump(need_fourth_annotation, f, ensure_ascii=False, indent=4)
-    #
-    # 补充trust结果
-    # integration_trust(original_data)
-    # with open("./annotated_data/updated_dataset_emo_behavior_stage_re_co_per_trust.json", "w", encoding="utf-8") as f:
-    #     json.dump(original_data, f, ensure_ascii=False, indent=4)
-    # print("情感强度标注已完成，结果已保存至 updated_annotations.json")
+
