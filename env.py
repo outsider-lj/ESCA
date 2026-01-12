@@ -13,8 +13,8 @@ import nltk
 import re
 import time
 from data.chek_data import average_to_5_level
-system_role = {'esc':'Supporter', 'cima': 'Teacher', 'cb': 'Buyer'}
-user_role = {'esc':'Seeker', 'cima': 'Student', 'cb': 'Seller'}
+system_role = {'esc':'Supporter'}
+user_role = {'esc':'Seeker'}
 message_format = {'esc': ESConvMessages}
 
 YOUR_API_KEY = ""

@@ -21,73 +21,12 @@ from agent import MDDP,PG
 
 from sklearn.metrics import f1_score, precision_score, recall_score
 # from metric import NLGEval
-# python sft_dp.py --gpu="0 1" --do_train --overwrite_output_dir --per_gpu_train_batch_size=8 --per_gpu_eval_batch_size=8
 EOS_TOKEN_ID=2
 BOS_TOKEN_ID=1
 tok = {'llama2': LlamaTokenizer,  'roberta': RobertaTokenizer}
 cfg = {'llama2': LlamaConfig, 'roberta': RobertaConfig}
 
 
-# def generate_from_embedding(
-#     model,
-#     inputs_embeds: torch.Tensor,
-#     max_new_tokens: int = 50,
-#     temperature: float = 0.7,
-#     top_k: int = 1,
-#     eos_token_id: int=EOS_TOKEN_ID,
-# ):
-#     device = inputs_embeds.device
-#     batch_size, seq_len, _ = inputs_embeds.shape
-#     generated = []
-#
-#     with torch.no_grad():
-#         outputs = model(
-#             inputs_embeds=inputs_embeds,
-#             use_cache=True,
-#         )
-#     logits = outputs.logits
-#     past_key_values = outputs.past_key_values
-#
-#     next_token_logits = logits[:, -1, :] / temperature
-#
-#     if top_k is not None and top_k > 0:
-#         top_k_values, _ = torch.topk(next_token_logits, top_k)
-#         min_top_k = top_k_values[:, -1].unsqueeze(-1)
-#         next_token_logits = torch.where(
-#             next_token_logits < min_top_k, torch.full_like(next_token_logits, -float("Inf")), next_token_logits
-#         )
-#
-#     probs = torch.softmax(next_token_logits, dim=-1)
-#     next_token = torch.multinomial(probs, num_samples=1)  # [B, 1]
-#
-#     generated.append(next_token)
-#
-#     for _ in range(max_new_tokens - 1):
-#         with torch.no_grad():
-#             outputs = model(
-#                 input_ids=next_token,
-#                 use_cache=True,
-#                 past_key_values=past_key_values,
-#             )
-#         logits = outputs.logits
-#         past_key_values = outputs.past_key_values
-#
-#         next_token_logits = logits[:, -1, :] / temperature
-#
-#         if top_k is not None and top_k > 0:
-#             top_k_values, _ = torch.topk(next_token_logits, top_k)
-#             min_top_k = top_k_values[:, -1].unsqueeze(-1)
-#             next_token_logits = torch.where(
-#                 next_token_logits < min_top_k, torch.full_like(next_token_logits, -float("Inf")), next_token_logits
-#             )
-#
-#         probs = torch.softmax(next_token_logits, dim=-1)
-#         next_token = torch.multinomial(probs, num_samples=1)
-#         generated.append(next_token)
-#
-#         if eos_token_id is not None and (next_token == eos_token_id).all():
-#             break
-#     return torch.cat(generated, dim=1)  # shape: [B, T]
 def generate_from_embedding(args, model, inputs_embeds: torch.Tensor):
     # device = inputs_embeds.device
     allowed_keys = {

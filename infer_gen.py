@@ -24,8 +24,6 @@ from sklearn.metrics import f1_score, precision_score, recall_score
 from utils import generate_context_knowledge
 from knowledge.preprocess_add_knowledge import search_faiss_and_fetch_text,get_strategy_category
 import re
-# from metric import NLGEval
-# python sft_dp.py --gpu="0 1" --do_train --overwrite_output_dir --per_gpu_train_batch_size=8 --per_gpu_eval_batch_size=8
 EOS_TOKEN_ID=2
 BOS_TOKEN_ID=1
 tok = {'llama2': LlamaTokenizer,  'roberta': RobertaTokenizer}

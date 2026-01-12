@@ -8,8 +8,6 @@ import time
 import openai
 TMP_DIR = {
     'esc': './tmp/esc',
-    'cima': './tmp/cima',
-    'cb': './tmp/cb',
 }
 
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction

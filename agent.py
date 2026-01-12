@@ -12,12 +12,10 @@ from prompt import ESConvAct,behaviors,stages#, CIMAAct, CBAct
 from itertools import chain
 import math
 
-model = {'bert': BertModel, 'roberta': RobertaModel}
+model = {'roberta': RobertaModel}
 act = {'esc': ESConvAct}# 'cima': CIMAAct, 'cb': CBAct
 TMP_DIR = {
     'esc': './tmp/esc',
-    'cima': './tmp/cima',
-    'cb': './tmp/cb',
 }
 class AttentionHead(nn.Module):
     def __init__(self, hidden_size):
@@ -42,7 +40,6 @@ class AttentionHead(nn.Module):
         pooled = output.mean(dim=1)  # 可替换为 CLS or attention weighted pool
         return pooled
 class MLPFeatureExtractor(nn.Module):
-    """ 用于提取不同维度（情绪、信任度、行为、改变阶段）的特征 """
     def __init__(self, input_dim, hidden_dim, output_dim):
         super(MLPFeatureExtractor, self).__init__()
         self.mlp = nn.Sequential(
@@ -67,7 +64,7 @@ class MDDP(nn.Module):
             self.proj2 = nn.Linear(config.hidden_size, config.hidden_size)
             self.proj3 = nn.Linear(config.hidden_size, config.hidden_size)
             self.convert_liner = nn.Linear(config.hidden_size*2, config.hidden_size)
-            # self.trust_embedding = nn.Parameter(torch.FloatTensor(1, config.hidden_size))
+
             self.mlp = nn.Sequential(
                 nn.Linear(config.hidden_size,config.hidden_size),
                 nn.ReLU(),
@@ -119,11 +116,6 @@ class MDDP(nn.Module):
             s_attn_weights = torch.softmax(s_attn_scores, dim=-1)  # (B, Lc, Lctx)
             state_features = torch.matmul(s_attn_weights, self.proj3(state_features))  # (B, Lc, d)
 
-            # attn_scores = torch.bmm(context_output.unsqueeze(1), features.transpose(-1, -2)) / math.sqrt(
-            #     features.size(-1))
-            # attn_weights = self.softmax(attn_scores)
-            # state_features = torch.bmm(attn_weights,
-            #                            self.proj3(state_features)).squeeze(1) # .unsqueeze(1).transpose(1,2) # (batch_size, num_dimensions, hidden_size)
             combined_output = torch.cat([state_features, cls_output], dim=-1)
             strategy_feature = self.convert_liner(combined_output)
             logits = self.classifier(strategy_feature)
@@ -496,5 +488,5 @@ class PG(nn.Module):
             self.module.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin')))
         else:
             self.load_state_dict(
-                torch.load(os.path.join(output_dir, 'pytorch_model-13.bin'), map_location=self.args.device))#-ep5
+                torch.load(os.path.join(output_dir, 'pytorch_model.bin'), map_location=self.args.device))#-ep5
 

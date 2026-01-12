@@ -18,15 +18,6 @@ BOS_TOKEN_ID=1
 
 tok = {'bert': BertTokenizer, 'roberta': RobertaTokenizer}
 cfg = {'bert': BertConfig, 'roberta': RobertaConfig}
-# ESConvAct = {"Question": ["context-related","Please ask the Seeker to elaborate on the situation they just described based on the context."],
-#             "Self-disclosure": ["information-related","Please provide a statement relating to the Seeker about the context they just described with the help of provided knowledge."],
-#             "Affirmation and Reassurance": ["emotion-related","Please provide affirmation and reassurance to the Seeker on the context they just described with the help of provided knowledge."],
-#             "Providing Suggestions": ["information-related","Please provide suggestion to the Seeker on the context they just described with the help of provided knowledge."],
-#             "Others": ["context-related","Please chat with the seeker."],
-#             "Reflection of feelings": ["emotion-related","Please acknowledge the Seeker's feelings about the context they described with the help of provided knowledge."],
-#             "Information": ["information-related","Please provide factual information to help the Seeker with their situation with the help of provided knowledge ."],
-#              "Restatement or Paraphrasing": ["context-related","Please acknowledge the Seeker's feelings by paraphrasing their situation."]
-#              }
 ESConvAct = {"Question": ["context-related","You are an emotional support agent as Supporter in the conversation, please ask the Seeker to elaborate on the situation they described with the help of provided knowledge."],
             "Self-disclosure": ["information-related","You are an emotional support agent as Supporter in the conversation, please provide a statement relating to the Seeker about the situation they just described."],
             "Affirmation and Reassurance":  ["emotion-related","You are an emotional support agent as Supporter in the conversation, please provide affirmation and reassurance to the Seeker on the situation they described with the help of provided knowledge."],
