@@ -271,41 +271,30 @@ class BridgeBlock(nn.Module):
         self.norm_ff = nn.LayerNorm(hidden_dim)
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self,context,knowledge,instruction,query1,query2):
-        if knowledge is not None:
-            query1_len = query1.size(1)
-            query2_len = query2.size(1)
-            # Self-attention
-            x = torch.cat([query2,query1, context], dim=1)
-            self_attn_output, _ = self.self_attn(x, x, x)
-            # knowledge
-            # Cross-attention with knowledge
-            cross_attn_output1, _ = self.kg_cross_attn(self_attn_output, knowledge, knowledge)
-            x_kg = self.norm1(x + self.dropout(cross_attn_output1))
-            # Feed-forward
-            x1 = self.feed_forward1(x_kg)
-            x_kg = self.norm_ff(x_kg + self.dropout(x1))
-            kg_query = self.feed_forward_query1(x_kg[:, query2_len:query2_len+query1_len, :])
-            #instruction
-            cross_attn_output2, _ = self.ins_cross_attn(self_attn_output, instruction, instruction)
-            x_ins = self.norm2(x + self.dropout(cross_attn_output2))
-            x2 = self.feed_forward2(x_ins)
-            x_ins = self.norm_ff(x_ins + self.dropout(x2))
-            ins_query = self.feed_forward_query2(x_ins[:, :query2_len, :])
-        else:
-            query2_len = query2.size(1)
-            # Self-attention
-            x = torch.cat([ query2,context], dim=1)
-            self_attn_output, _ = self.self_attn(x, x, x)
-            # instruction
-            cross_attn_output2, _ = self.ins_cross_attn(self_attn_output, instruction, instruction)
-            x_ins = self.norm2(x + self.dropout(cross_attn_output2))
-            x2 = self.feed_forward2(x_ins)
-            x_ins = self.norm_ff(x_ins + self.dropout(x2))
-            ins_query = self.feed_forward_query2(x_ins[:,:query2_len, :])
-            kg_query=None
-        # ff_history = self.feed_forward_history(cross_attn_output[:, query_len:, :])
-        return kg_query, ins_query
+    def forward(self,context,knowledge,instruction,instruction_query,knowledge_query):
+        query1_len = instruction_query.size(1)
+        query2_len = knowledge_query.size(1)
+        # Self-attention
+        # x = torch.cat([query1, context,query2], dim=1)
+        x = torch.cat([instruction_query,knowledge_query, context], dim=1)
+        self_attn_output, _ = self.self_attn(x, x, x)
+        fused_ins = self_attn_output[:, :query1_len, :]
+        fused_kg = self_attn_output[:, query1_len:query1_len+query2_len, :]
+        # knowledge
+        # Cross-attention with knowledge
+        cross_attn_output1, _ = self.kg_cross_attn(fused_kg, knowledge, knowledge)
+        x_kg = self.norm1(fused_kg + self.dropout(cross_attn_output1))
+        # Feed-forward
+        x1 = self.feed_forward1(x_kg)
+        x_kg = self.norm_f1(x_kg + self.dropout(x1))
+        kg_query = self.feed_forward_query1(x_kg)
+        #instruction
+        cross_attn_output2, _ = self.ins_cross_attn(fused_ins, instruction, instruction)
+        x_ins = self.norm2(fused_ins + self.dropout(cross_attn_output2))
+        x2 = self.feed_forward2(x_ins)
+        x_ins = self.norm_f2(x_ins + self.dropout(x2))
+        ins_query = self.feed_forward_query2(x_ins)
+    return kg_query, ins_query
 
 class PG(nn.Module):
     def __init__(self, args, config, tokenizer):
@@ -320,11 +309,11 @@ class PG(nn.Module):
         self.tokenizer = tokenizer
         self.config = config
         self.args = args
-        self.query1 = nn.Parameter(torch.randn(1, 32, config.hidden_size))  # 可扩展到不同 batch
+        self.query1 = nn.Parameter(torch.randn(1, 32, config.hidden_size))  
         self.query2 = nn.Parameter(torch.randn(1, 4, config.hidden_size))
         self.optimizer = AdamW(self.parameters(), lr=args.pg_learning_rate)
-        self.log_std = nn.Parameter(torch.zeros(config.hidden_size))  # 固定的标准差
-        self.log_std_layer= nn.Linear(config.hidden_size, config.hidden_size)  # 每个 token 的标准差
+        self.log_std = nn.Parameter(torch.zeros(config.hidden_size))  
+        self.log_std_layer= nn.Linear(config.hidden_size, config.hidden_size) 
         self.value_function = nn.Linear(config.hidden_size * 2, 1)
         self.eps = np.finfo(np.float32).eps.item()
         self.config = config
